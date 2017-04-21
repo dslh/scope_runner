@@ -22,10 +22,10 @@ module ScopeRunner
   end
 end
 
-require_relative 'scope_runner/suite'
-require_relative 'scope_runner/step'
-require_relative 'scope_runner/variable'
-require_relative 'scope_runner/assertion'
-require_relative 'scope_runner/extractors'
-require_relative 'scope_runner/comparators'
-require_relative 'scope_runner/response'
+require_relative 'scope-runner/suite'
+require_relative 'scope-runner/step'
+require_relative 'scope-runner/variable'
+require_relative 'scope-runner/assertion'
+require_relative 'scope-runner/extractors'
+require_relative 'scope-runner/comparators'
+require_relative 'scope-runner/response'

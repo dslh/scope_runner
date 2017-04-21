@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require_relative 'lib/scope_runner'
+require_relative 'lib/scope-runner'
 
 require 'yaml'
 require 'pry-byebug'
