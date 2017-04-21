@@ -20,4 +20,8 @@ vars:
   you_get: the idea
 ```
 
+There are no tests. It's a bit shaky.
+
+![caveat emptor](http://images1.tickld.com/live/1380405.gif)
+
 Viel spaß!
