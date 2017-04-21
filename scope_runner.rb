@@ -7,7 +7,7 @@ require 'pry-byebug'
 # RestClient.log = 'stdout'
 
 if $0 == __FILE__
-  suites = ScopeRunner.read_runscope_export './api.json'
+  suites = ScopeRunner.read_runscope_export './scopes.json'
   # suites.each { |suite| puts suite.to_s ; puts }
 
   vars = YAML.load(File.read('./env.yaml'))['vars']
