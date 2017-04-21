@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'lib/scope-runner/version'
+$:.push File.expand_path('../lib', __FILE__)
+require 'scope-runner/version'
 
 Gem::Specification.new do |s|
   s.name     = 'scope-runner'
@@ -19,4 +20,5 @@ Gem::Specification.new do |s|
   s.files = Dir['lib/**/*', 'bin/*', 'LICENSE', 'README.md']
   s.add_runtime_dependency 'ruby-prof'
   s.add_runtime_dependency 'rake'
+  s.add_runtime_dependency 'trollop'
 end

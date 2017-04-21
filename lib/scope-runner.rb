@@ -4,6 +4,7 @@ require 'colorize'
 
 module ScopeRunner
   INLINE_VARIABLE = /{{[^}]+}}/
+  PROFTYPES = %w(suite request).freeze
 
   def self.read_runscope_export(path)
     Suite.from_json_array JSON.parse File.read path
@@ -29,3 +30,4 @@ require_relative 'scope-runner/assertion'
 require_relative 'scope-runner/extractors'
 require_relative 'scope-runner/comparators'
 require_relative 'scope-runner/response'
+require_relative 'scope-runner/version'

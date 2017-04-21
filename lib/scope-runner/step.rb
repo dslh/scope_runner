@@ -29,10 +29,10 @@ module ScopeRunner
       end
     end
 
-    def run(vars)
+    def run(vars, suite, index, proftype, first:, last:)
       puts "- #{step_type}: #{method} #{url_suffix(vars)}"
       check_vars(vars)
-      response = fire_request(vars)
+      response = fire_request(vars, suite, index, proftype, first, last)
       run_assertions(response, vars)
       extract_vars(response, vars)
     end
@@ -67,9 +67,15 @@ module ScopeRunner
       puts "Missing variables: #{missing_variables.join ', '}".red
     end
 
-    def fire_request(vars)
+    def fire_request(vars, suite, index, proftype, first, last)
       start = Time.now
-      headers = sub_header_variables(vars)
+      headers = sub_header_variables(vars).merge(
+        'ScopeRunner-Proftype' => proftype,
+        'ScopeRunner-Sequence' => index
+      )
+      headers.merge!('ScopeRunner-Init' => suite) if first
+      headers.merge!('ScopeRunner-Drain' => suite) if last
+
       payload = if !(body.nil? || body.empty?)
                   headers = headers.merge(content_type: :json)
                   ScopeRunner.sub_vars(body, vars)
