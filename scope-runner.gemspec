@@ -21,4 +21,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'ruby-prof'
   s.add_runtime_dependency 'rake'
   s.add_runtime_dependency 'trollop'
+  s.add_runtime_dependency 'rest-client'
+  s.add_runtime_dependency 'colorize'
 end
