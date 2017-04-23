@@ -71,10 +71,11 @@ module ScopeRunner
       start = Time.now
       headers = sub_header_variables(vars).merge(
         'ScopeRunner-Proftype' => proftype,
+        'ScopeRunner-Suite'    => suite,
         'ScopeRunner-Sequence' => index
       )
-      headers.merge!('ScopeRunner-Init' => suite) if first
-      headers.merge!('ScopeRunner-Drain' => suite) if last
+      headers.merge!('ScopeRunner-Init' => 'true') if first
+      headers.merge!('ScopeRunner-Drain' => 'true') if last
 
       payload = if !(body.nil? || body.empty?)
                   headers = headers.merge(content_type: :json)

@@ -28,11 +28,14 @@ module Rack
 
     def call(env)
       request = Rack::Request.new(env)
-      sequence_number = request.env['HTTP_SCOPE_RUNNER_SEQUENCE']
+      suite_id = request.env['HTTP_SCOPERUNNER_SUITE']
+      sequence_number = request.env['HTTP_SCOPERUNNER_SEQUENCE']
+      init_suite(suite_id) if request.env['HTTP_SCOPERUNNER_INIT']
+
       return @app.call(env) unless sequence_number && should_profile?(request.path)
 
       begin
-        case request.env['HTTP_SCOPE_RUNNER_PROFTYPE']
+        case request.env['HTTP_SCOPERUNNER_PROFTYPE']
         when 'request'
           result = nil
 
@@ -41,17 +44,18 @@ module Rack
           end
 
           path = sequence_number + request.path.gsub('/', '-')
-          print(data, path)
+          print(data, ::File.join(suite_id, path))
         when 'suite'
-          ::RubyProf.start
+          ::RubyProf.start unless ::RubyProf.running?
+
+          ::RubyProf.resume
           result = @app.call(env)
           ::RubyProf.pause
 
           # Drain parameter will be given with the last request of a suite.
-          drain_path = request.env['HTTP_SCOPE_RUNNER_DRAIN']
-          if drain_path
+          if request.env['HTTP_SCOPERUNNER_DRAIN']
             data = ::RubyProf.stop
-            print(data, drain_path)
+            print(data, ::File.join(suite_id, 'suite'))
           end
         end
         result
@@ -59,6 +63,15 @@ module Rack
     end
 
     private
+
+    def init_suite(suite_id)
+      ::RubyProf.stop if ::RubyProf.running?
+
+      init_dir = ::File.join(@tmpdir, suite_id)
+
+      return unless ::File.directory?(init_dir)
+      ::FileUtils.rm_r ::File.join(init_dir, '*')
+    end
 
     def should_profile?(path)
       return false if paths_match?(path, @skip_paths)
@@ -89,6 +102,8 @@ module Rack
     end
 
     def print(data, path)
+      ::FileUtils.mkdir_p ::File.dirname(::File.join(@tmpdir, path))
+
       @printer_klasses.each do |printer_klass, base_name|
         printer = printer_klass.new(data)
 
