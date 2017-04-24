@@ -70,7 +70,7 @@ module Rack
       init_dir = ::File.join(@tmpdir, suite_id)
 
       return unless ::File.directory?(init_dir)
-      ::FileUtils.rm_r ::File.join(init_dir, '*')
+      ::FileUtils.rm_r Dir[::File.join(init_dir, '*')]
     end
 
     def should_profile?(path)
