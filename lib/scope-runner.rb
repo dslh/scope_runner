@@ -4,7 +4,7 @@ require 'colorize'
 
 module ScopeRunner
   INLINE_VARIABLE = /{{[^}]+}}/
-  PROFTYPES = %w(suite request).freeze
+  PROFTYPES = %w(suite request memsuite memrequest).freeze
 
   def self.read_runscope_export(path)
     Suite.from_json_array JSON.parse File.read path

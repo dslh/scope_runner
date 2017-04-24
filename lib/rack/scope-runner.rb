@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'tmpdir'
 require 'ruby-prof'
+require 'memory_profiler'
 
 module Rack
   # Integrates ruby prof with scope runner, generating profiles for each individual request
@@ -30,21 +31,23 @@ module Rack
       request = Rack::Request.new(env)
       suite_id = request.env['HTTP_SCOPERUNNER_SUITE']
       sequence_number = request.env['HTTP_SCOPERUNNER_SEQUENCE']
+      sequenced_path = sequence_number + request.path.gsub('/', '-')
       init_suite(suite_id) if request.env['HTTP_SCOPERUNNER_INIT']
 
       return @app.call(env) unless sequence_number && should_profile?(request.path)
 
       begin
+        result = nil
+
         case request.env['HTTP_SCOPERUNNER_PROFTYPE']
         when 'request'
-          result = nil
 
           data = ::RubyProf::Profile.profile(profiling_options) do
             result = @app.call(env)
           end
 
-          path = sequence_number + request.path.gsub('/', '-')
-          print(data, ::File.join(suite_id, path))
+          print(data, ::File.join(suite_id, sequenced_path))
+
         when 'suite'
           ::RubyProf.start unless ::RubyProf.running?
 
@@ -56,6 +59,23 @@ module Rack
           if request.env['HTTP_SCOPERUNNER_DRAIN']
             data = ::RubyProf.stop
             print(data, ::File.join(suite_id, 'suite'))
+          end
+
+        when 'memrequest'
+          data = ::MemoryProfiler.report do
+            result = @app.call(env)
+          end
+
+          print_mem(data, ::File.join(suite_id, sequenced_path))
+
+        when 'memsuite'
+          ::MemoryProfiler.start # Does nothing if already started
+
+          result = @app.call(env)
+
+          if request.env['HTTP_SCOPERUNNER_DRAIN']
+            data = ::MemoryProfiler.stop
+            print_mem(data, ::File.join(suite_id, 'suite'))
           end
         end
         result
@@ -122,6 +142,12 @@ module Rack
           end
         end
       end
+    end
+
+    def print_mem(data, path)
+      full_path = ::File.join(@tmpdir, path)
+      ::FileUtils.mkdir_p ::File.dirname(full_path)
+      ::File.open("#{full_path}-mem.txt", 'w') { |file| data.pretty_print(file) }
     end
   end
 end
